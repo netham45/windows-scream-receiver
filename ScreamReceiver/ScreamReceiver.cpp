@@ -107,7 +107,7 @@ HRESULT PlayAudio(SOCKET sock) {
             pwfex->Samples.wValidBitsPerSample = pwfex->Format.wBitsPerSample;
             pwfex->SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
 
-            hr = pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, REFTIMES_PER_SEC, 0, (WAVEFORMATEX*)pwfex, NULL);
+            hr = pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM, REFTIMES_PER_SEC, 0, (WAVEFORMATEX*)pwfex, NULL);
             if (FAILED(hr)) {
                 LogError("Failed to initialize audio client", hr);
                 CoTaskMemFree(pwfex);
