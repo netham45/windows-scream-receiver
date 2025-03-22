@@ -21,7 +21,7 @@ env:
   BUILD_CONFIGURATION: Release
 
 permissions:
-  contents: read
+  contents: write # Changed from read to write to allow creating releases
 
 jobs:
   build:
@@ -48,3 +48,27 @@ jobs:
       with:
         name: ScreamReceiver
         path: D:\a\windows-scream-receiver\windows-scream-receiver\x64\Release\ScreamReceiver.exe
+
+    - name: Get short SHA
+      id: short-sha
+      run: echo "::set-output name=sha::$(git rev-parse --short HEAD)"
+      shell: bash
+
+    - name: Create release zip
+      run: |
+        mkdir -p release
+        cp x64\Release\ScreamReceiver.exe release\
+        cp install\*.bat release\
+        Compress-Archive -Path release\* -DestinationPath ScreamReceiver-${{ steps.short-sha.outputs.sha }}.zip
+      shell: pwsh
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ScreamReceiver-${{ steps.short-sha.outputs.sha }}.zip
+        tag_name: v${{ steps.short-sha.outputs.sha }}
+        name: Release ${{ steps.short-sha.outputs.sha }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
